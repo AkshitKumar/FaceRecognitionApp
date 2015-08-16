@@ -64,8 +64,8 @@
 		context.fillStyle = '#AAA';
 		context.fillRect(0,0,canvas.width,canvas.height);
 
-		var data = canvas.toDataURL('image/png');
-		photo.setAttribute('src',data);
+		var imgdata = canvas.toDataURL('image/png');
+		photo.setAttribute('src',imgdata);
 	}
 
 	function takepicture(){
@@ -75,8 +75,15 @@
 			canvas.height = height;
 			context.drawImage(video,0,0,width,height);
 
-			var data = canvas.toDataURL('image/png');
-			photo.setAttribute('src',data);
+			var imgdata = canvas.toDataURL('image/png');
+			photo.setAttribute('src',imgdata);
+			var data = {
+				name : $('#name').val(),
+				image : imgdata
+			};
+			$.post('upload.php',data,function(resp,status){
+				alert("The picture is uploaded");
+			});
 		} else{
 			clearphoto();
 		}
