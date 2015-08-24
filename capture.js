@@ -8,13 +8,14 @@
 	var canvas = null;
 	var photo = null;
 	var startbutton = null;
+	var check = null;
 
 	function startup(){
 		video = document.getElementById('video');
 		canvas = document.getElementById('canvas');
 		photo = document.getElementById('photo');
 		startbutton = document.getElementById('startbutton');
-
+		check = document.getElementById('check');
 		navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia ||
                            navigator.mozGetUserMedia ||
                            navigator.msGetUserMedia);
@@ -56,6 +57,10 @@
       		ev.preventDefault();
     	}, false);
 
+    	check.addEventListener('click',function(ev){
+    		checkPhoto();
+    	},false);
+
 		clearphoto();
 	}
 
@@ -78,7 +83,7 @@
 			var imgdata = canvas.toDataURL('image/png');
 			photo.setAttribute('src',imgdata);
 			var data = {
-				name : $('#name').val(),
+				name : $('#photoname').val(),
 				image : imgdata
 			};
 			$.post('upload.php',data,function(resp,status){
@@ -87,6 +92,28 @@
 		} else{
 			clearphoto();
 		}
+	}
+
+	function checkPhoto(){
+		var name = $('#name').val();
+		var photoname = $('#photoname').val();
+		var apiurl = 'http://api.skybiometry.com/fc/faces/recognize.json?api_key=9109e9f3a40f4d339417af307836d885&api_secret=8107096aba4a427f986804dbbf029f05&urls=http://souryav.5gbfree.com/facerecog/images/' + photoname + '.png&uids=' + name +'@photobooth';
+		$.getJSON(apiurl,function(json){
+			if(json.status === "success"){
+			if(typeof json.photos[0].tags[0].uids[0] == 'undefined'){
+				document.getElementById('output').innerHTML = 'Photo does match with name';
+				document.getElementById('access').innerHTML = 'ACCESS DENIED';
+			}
+			else if(json.photos[0].tags[0].uids[0].confidence >= 60){
+				document.getElementById('output').innerHTML = json.photos[0].tags[0].uids[0].uid.replace("95@photobooth","");
+				document.getElementById('access').innerHTML = 'ACCESS GRANTED';
+			}
+		}
+		else if(json.status === "failure"){
+			document.getElementById('output').innerHTML = 'Failure Occured. Try again by refreshing the window and wait some time before checking';
+			document.getElementById('access').innerHTML = 'ACCESS DENIED';
+		}
+		});
 	}
 
 	window.addEventListener('load',startup,false);
