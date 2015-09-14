@@ -9,7 +9,7 @@
 	var photo = null;
 	var startbutton = null;
 	var check = null;
-
+	var photoname = Math.floor((Math.random()*1000000)+1).toString();
 	function startup(){
 		video = document.getElementById('video');
 		canvas = document.getElementById('canvas');
@@ -83,7 +83,7 @@
 			var imgdata = canvas.toDataURL('image/png');
 			photo.setAttribute('src',imgdata);
 			var data = {
-				name : $('#photoname').val(),
+				name : photoname,
 				image : imgdata
 			};
 			$.post('upload.php',data,function(resp,status){
@@ -96,7 +96,7 @@
 
 	function checkPhoto(){
 		var name = $('#name').val();
-		var photoname = $('#photoname').val();
+		var photoname = photoname;
 		var apiurl = 'http://api.skybiometry.com/fc/faces/recognize.json?api_key=9109e9f3a40f4d339417af307836d885&api_secret=8107096aba4a427f986804dbbf029f05&urls=http://souryav.5gbfree.com/facerecog/images/' + photoname + '.png&uids=' + name +'@photobooth';
 		$.getJSON(apiurl,function(json){
 			if(json.status === "success"){
@@ -105,7 +105,7 @@
 				document.getElementById('access').innerHTML = 'ACCESS DENIED';
 			}
 			else if(json.photos[0].tags[0].uids[0].confidence >= 60){
-				document.getElementById('output').innerHTML = json.photos[0].tags[0].uids[0].uid.replace("95@photobooth","");
+				document.getElementById('output').innerHTML = json.photos[0].tags[0].uids[0].uid.replace("@photobooth","");
 				document.getElementById('access').innerHTML = 'ACCESS GRANTED';
 			}
 		}
